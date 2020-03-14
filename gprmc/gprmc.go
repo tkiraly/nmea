@@ -1,4 +1,4 @@
-package nmea
+package gprmc
 
 import (
 	"fmt"
@@ -19,22 +19,35 @@ type GPRMC struct {
 	MagneticVariation float64
 }
 
-func buildgprmc(sentence GPRMC) (string, error) {
+func Build(sentence GPRMC) (string, error) {
 	lat, lon := util.Lonlat2nmealonlat(sentence.Longitude, sentence.Latitude)
 	magvardir := "E"
-	if sentence.MagneticVariation < 0{
+	if sentence.MagneticVariation < 0 {
 		magvardir = "W"
 	}
 	s := fmt.Sprintf("GPRMC,%02d%02d%02d,%s,%s,%s,%05.1f,%05.1f,%02d%02d%02d,%05.1f,%s",
 		sentence.DateTime.UTC().Hour(), sentence.DateTime.UTC().Minute(), sentence.DateTime.UTC().Second(),
 		sentence.ReceiverStatus, lat, lon, sentence.Speed, sentence.Course,
 		sentence.DateTime.Day(), sentence.DateTime.Month(), sentence.DateTime.Year()%100,
-		sentence.MagneticVariation,magvardir)
+		sentence.MagneticVariation, magvardir)
 	s = util.Checksum(s)
 	return s, nil
 }
 
-func parsegprmc(sentence string, v *GPRMC) error {
+func BuildMinimal(now time.Time, longitude, latitude float64) (string, error) {
+	rmc := GPRMC{
+		DateTime:          now,
+		Longitude:         longitude,
+		Latitude:          latitude,
+		ReceiverStatus:    "A",
+		Speed:             0, // Speed in knots
+		Course:            0,
+		MagneticVariation: 0,
+	}
+	return Build(rmc)
+}
+
+func Parse(sentence string, v *GPRMC) error {
 	components := strings.Split(sentence, ",")
 	t, err := util.Parsedatetime(components[1], components[9])
 	if err != nil {

@@ -1,4 +1,4 @@
-package nmea
+package gpgga
 
 import (
 	"reflect"
@@ -38,7 +38,7 @@ func TestMarshal(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := buildgpgga(tt.args.sentence)
+			got, err := Build(tt.args.sentence)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Marshal() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -98,7 +98,7 @@ func TestUnmarshal(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			out := &GPGGA{}
-			if err := parsegpgga(tt.args.sentence, out); !reflect.DeepEqual(*out, *tt.args.v) || (err != nil) != tt.wantErr {
+			if err := Parse(tt.args.sentence, out); !reflect.DeepEqual(*out, *tt.args.v) || (err != nil) != tt.wantErr {
 				t.Errorf("got: %+v, want: %+v", *out, *tt.args.v)
 				t.Errorf("Unmarshal() error = %v, wantErr %v", err, tt.wantErr)
 			}

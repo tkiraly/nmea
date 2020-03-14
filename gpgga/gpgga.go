@@ -1,4 +1,4 @@
-package nmea
+package gpgga
 
 import (
 	"fmt"
@@ -22,7 +22,7 @@ type GPGGA struct {
 	DGPSId        int
 }
 
-func buildgpgga(sentence GPGGA) (string, error) {
+func Build(sentence GPGGA) (string, error) {
 	lat, lon := util.Lonlat2nmealonlat(sentence.Longitude, sentence.Latitude)
 	s := fmt.Sprintf("GPGGA,%02d%02d%06.3f,%s,%s,%1d,%02d,%03.1f,%03.1f,%s,%03.1f,%s,%03.1f,%04d",
 		sentence.Time.UTC().Hour(), sentence.Time.UTC().Minute(),
@@ -33,7 +33,23 @@ func buildgpgga(sentence GPGGA) (string, error) {
 	return s, nil
 }
 
-func parsegpgga(sentence string, v *GPGGA) error {
+func BuildMinimal(now time.Time, longitude, latitude, altitude float64) (string, error) {
+	gga := GPGGA{
+		Time:          now,
+		Longitude:     longitude,
+		Latitude:      latitude,
+		FixQuality:    1,
+		NumSatellites: 10,
+		HDOP:          1,
+		Altitude:      altitude,
+		Separation:    0,
+		DGPSAge:       0,
+		DGPSId:        0,
+	}
+	return Build(gga)
+}
+
+func Parse(sentence string, v *GPGGA) error {
 	components := strings.Split(sentence, ",")
 	t, err := util.Parsetime(components[1])
 	if err != nil {

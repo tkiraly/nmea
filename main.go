@@ -1,13 +1,18 @@
 package nmea
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/tkiraly/nmea/gpgga"
+	"github.com/tkiraly/nmea/gprmc"
+)
 
 func Parse(sentence string, v interface{}) error {
 	switch t := v.(type) {
-	case *GPGGA:
-		return parsegpgga(sentence, t)
-	case *GPRMC:
-		return parsegprmc(sentence, t)
+	case *gpgga.GPGGA:
+		return gpgga.Parse(sentence, t)
+	case *gprmc.GPRMC:
+		return gprmc.Parse(sentence, t)
 	default:
 		return fmt.Errorf("unknown sentence type: %T", t)
 	}
@@ -15,14 +20,14 @@ func Parse(sentence string, v interface{}) error {
 
 func Build(sentence interface{}) (string, error) {
 	switch v := sentence.(type) {
-	case GPGGA:
-		return buildgpgga(v)
-	case *GPGGA:
-		return buildgpgga(*v)
-	case GPRMC:
-		return buildgprmc(v)
-	case *GPRMC:
-		return buildgprmc(*v)
+	case gpgga.GPGGA:
+		return gpgga.Build(v)
+	case *gpgga.GPGGA:
+		return gpgga.Build(*v)
+	case gprmc.GPRMC:
+		return gprmc.Build(v)
+	case *gprmc.GPRMC:
+		return gprmc.Build(*v)
 	default:
 		return "", fmt.Errorf("unknown sentence type: %T", sentence)
 	}
